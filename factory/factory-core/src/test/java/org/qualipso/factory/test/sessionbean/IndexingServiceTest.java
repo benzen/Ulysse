@@ -14,7 +14,7 @@ import org.jmock.Mockery;
 import org.jmock.Sequence;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.qualipso.factory.indexing.IndexI;
+import org.qualipso.factory.indexing.Index;
 import org.qualipso.factory.indexing.IndexingService;
 import org.qualipso.factory.indexing.IndexingServiceBean;
 import org.qualipso.factory.indexing.SearchResult;
@@ -38,7 +38,7 @@ public class IndexingServiceTest extends BaseSessionBeanFixture<IndexingServiceB
 	private SessionContext ctx;
 	private Queue indexingQueue;
 	private QueueConnectionFactory queueConnectionFactory;
-	private IndexI index;
+	private Index index;
 	
 	
 	@BeforeClass
@@ -51,7 +51,7 @@ public class IndexingServiceTest extends BaseSessionBeanFixture<IndexingServiceB
 		ctx = mockery.mock(SessionContext.class);
 		indexingQueue = mockery.mock(Queue.class);
 		queueConnectionFactory = mockery.mock(QueueConnectionFactory.class);
-		index = mockery.mock(IndexI.class);
+		//index = mockery.mock(IndexI.class);
 		
 		
 		getBeanToTest().setMembershipService(membership);
@@ -59,7 +59,7 @@ public class IndexingServiceTest extends BaseSessionBeanFixture<IndexingServiceB
 		getBeanToTest().setSessionContext(ctx);
 		getBeanToTest().setIndexingQueue(indexingQueue);
 		getBeanToTest().setQueueConnectionFactory(queueConnectionFactory);
-		getBeanToTest().setIndex(index);
+		//getBeanToTest().setIndex(index);
 		
 		
 	}
@@ -102,7 +102,7 @@ public class IndexingServiceTest extends BaseSessionBeanFixture<IndexingServiceB
 				
 				mockery.checking(new Expectations() {
 					{
-					allowing(index).search("bug AND forge");will(returnValue(new ArrayList<SearchResult>()));inSequence(sequence4);
+					//allowing(index).search("bug AND forge");will(returnValue(new ArrayList<SearchResult>()));inSequence(sequence4);
 					allowing(membership).getProfilePathForConnectedIdentifier();will(returnValue("/profiles/kermit"));inSequence(sequence4);
 					allowing(pep).checkSecurity(with(any(String.class)), with(any(String.class)), with(any(String.class)));inSequence(sequence4);
 					

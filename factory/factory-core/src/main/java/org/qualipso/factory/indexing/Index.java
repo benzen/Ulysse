@@ -27,7 +27,7 @@ import org.apache.lucene.search.highlight.QueryScorer;
 import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
 import org.apache.lucene.store.FSDirectory;
 
-public class Index implements IndexI {
+public class Index{
 	private static Index instance;
 	private static String indexFolderName = "data/index/";
 	private File indexDir;
@@ -48,7 +48,12 @@ public class Index implements IndexI {
 	   	 }
 	     
 	}
-
+	
+    /**
+    * Get the unique instance of index.
+    * @return the instance of Index.
+    * @throws IndexingServiceException if an internal error occurs
+    */
 	public static synchronized Index getInstance() throws IndexingServiceException {
         try {
             if (instance == null) 
@@ -61,7 +66,11 @@ public class Index implements IndexI {
         }
 	}
 
-	@Override
+    /**
+    * Index the given document.
+    * @params doc the document to index.
+    * @throws IndexingServiceException if an internal error occurs
+    */
 	public void index(IndexableDocument doc) throws IndexingServiceException {
 	logger.info("index(...) called");
     logger.debug("params : IndexableDocument=" + doc);
@@ -82,7 +91,12 @@ public class Index implements IndexI {
 
 	}
 
-	@Override
+    /**
+    * Reindex a given document. Delete it, and then index it.
+    * @param path the path to the resource.
+    * @param doc the document to index.  
+    * @throws IndexingServiceException if an internal error occurs
+    */
 	public void reindex(String path, IndexableDocument doc) throws IndexingServiceException {
    	logger.info("reindex(...) called");
     logger.debug("params :path=" + path +" doc="+doc);
@@ -91,7 +105,12 @@ public class Index implements IndexI {
 
 	}
 
-	@Override
+
+    /**
+    * Remove a document of the index.
+    * @param path the path to the resource.
+    * @throws IndexingServiceException if an internal error occurs
+    */
 	public void remove(String path) throws IndexingServiceException {
 	logger.info("remove(...) called");
     logger.debug("params :path=" + path);
@@ -109,7 +128,12 @@ public class Index implements IndexI {
 
 	}
 
-	@Override
+    /**
+    * Search for resource through the index.
+    * @param queryString  The query to search run the index against. 
+    * @return a list of result that match to the query.
+    * @throws IndexingServiceException if an internal error occurs
+    */
 	public ArrayList<SearchResult> search(String queryString)
 			throws IndexingServiceException {
 		try {

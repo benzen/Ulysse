@@ -18,32 +18,34 @@ package org.qualipso.factory.indexing;
 
 
 /**
- * <p>Class which implements IndexableContentI</p>
+ * An easy to use string holder.
  * @author Benjamin DREUX
  * @author cynthia FLORENTIN
  * @see IndexableContentI
  */
 @SuppressWarnings("serial")
-public class IndexableContent implements IndexableContentI {
+public class IndexableContent{
     private StringBuffer sb;
     
     /**
-     * <p>Constructor with a type of object to represent the list</p>
+     * Create a new indexable Content
      */
     public IndexableContent() {
         sb = new StringBuffer();
     }
     
     /**
-     * @see IndexableContentI#addContentPart(String)
-     */
-    public void addContentPart(String content) throws IndexingServiceException {
+	 * Add a new element
+	 * @param content a string to add to the content.
+	 */
+    public void addContentPart(String content){
         sb.append(content);
     }
     
     /**
-     * @see IndexableContentI#toString()
-     */
+	 * Allows to represent the list of keyword's hits on the document.
+	 * @return a String that represent the whole content.
+	 */
     public String toString() {
         return sb.toString();
     }

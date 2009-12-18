@@ -22,13 +22,12 @@ import org.qualipso.factory.FactoryResourceIdentifier;
 
 
 /**
- * <p> Class which implements IndexableDocumentI</p>
- * @see IndexableDocumentI
+ * A document is serializble repesentation of a factory resource. 
  * @author Benjamin DREUX
  * @author cynthia FLORENTIN
  */
 
-public class IndexableDocument implements IndexableDocumentI{
+public class IndexableDocument {
     private FactoryResourceIdentifier resourceFRI;
     private String resourceService;
     private String resourceType;
@@ -38,53 +37,56 @@ public class IndexableDocument implements IndexableDocumentI{
 
 
     /**
-     * <p>Set a Factory Resource Identifier (FRI) reference of document with a FactoryResourceIdentifier</p>
-     * @param resourceFRI is a FactoryResourceIdentifier
+     * Set the Factory Resource Identifier wich identfie the resource represented by this document.
+     * @param resourceFRI the identifier of the resource
      */
     public void setResourceFRI(FactoryResourceIdentifier resourceFRI){
     	this.resourceFRI = resourceFRI;
     }
     
     /**
-     * <p>Set the service of document with the string</p>
-     * @param resourceService is a string
+     * Set the name of the service which create the resource represented by this document.
+     * @param resourceService name of the service.
      */
     public void setResourceService(String resourceService){
     	this.resourceService = resourceService;
     }
     
     /**
-     * <p>Set the type of document with a string</p>
-     * @param resourceType is a string
+     * Set the type of the resource represented by this document.
+     * @param resourceType A string wich represent the type of resource.
      */
     public void setResourceType(String resourceType){
     	this.resourceType = resourceType;
     }
     
     /**
-     * <p>Set the name of document with a string</p>
-     * @param resourceShortName is a string
+     * Set the name of the resource represented by this document.
+     * @param resourceShortName the name of the resource
      */
     public void setResourceShortName(String resourceShortName){
     	this.resourceShortName = resourceShortName;
     }
     
     /**
-     * <p>set an object of type IndexableContent</p>
-     * @param indexableContent
+     * Set the content of the resource represented by this document.
+     * @param indexableContent the content of the resource
      */
     public void setIndexableContent(IndexableContent indexableContent){
     	this.indexableContent = indexableContent;
     }
+    
     /**
-    *@see IndexableDocumentI#setResourcePath()
+    * Set the path of the resource represented by this document.
+    * @param path the path of the resource
     **/
     public void setResourcePath(String path){
     	this.path = path;
     }
     
     /**
-     * @see IndexableDocumentI#getResourceURI()
+     * Get the identifier of the resource represented by this document.
+     * @return the identifier.
      */
     public FactoryResourceIdentifier getResourceFRI() {
         return resourceFRI;
@@ -92,41 +94,46 @@ public class IndexableDocument implements IndexableDocumentI{
     }
     
     /**
-     * @see IndexableDocumentI#getResourceService()
+     * Get the name of the service wich create the resource represented by this document.
+     * @return the name of the service.
      */
     public String getResourceService(){
         return resourceService;
     }
     
     /**
-     * @see IndexableDocumentI#getResourceType()
+     * Get the type of resource represented by this document.
+     * @return the type of the resource.
      */
     public String getResourceType(){
         return resourceType;
     }
     
     /**
-     * @see IndexableDocumentI#getResourceShortName()
+     * Get the name of the resource represented by this document.
+     * @return the name of the resource.
      */
     public String getResourceShortName(){
         return resourceShortName;
     }
     
     /**
-     * @see IndexableDocumentI#getIndexableContent()
+     * Get the content of the resource represented by this document.
+     * @return the content of the resource.
      */
     public IndexableContent getIndexableContent(){
         return indexableContent;
     }
     /**
-    * @see  IndexableDocumentI#getResourcePath()
+    * Get the path tio the resource represented by this document.
+    * @return the path to the resource, when it was indexed.
     **/
     public String getResourcePath(){
     	return path;
     }
     
     /**
-     * <p> Give a document. 
+     * <p> Give a lucene document. 
      * A Document has a list of fields; each field has a name and a textual value.  
      * A field Index specifies whether and how a field should be indexed. 
      * Index the tokens produced by running the field's value through an Analyzer.

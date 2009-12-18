@@ -53,7 +53,7 @@ public class IndexingServiceBean implements IndexingService {
 	private PEPService pep;
 	private MembershipService membership;
 	private SessionContext ctx;
-	private IndexI index;
+	private Index index;
     
     @Resource(mappedName="ConnectionFactory")
 	private QueueConnectionFactory queueConnectionFactory;
@@ -92,10 +92,10 @@ public class IndexingServiceBean implements IndexingService {
 		return this.membership;
 	}
 	
-	public void setIndex(IndexI index) {
+	public void setIndex(Index index) {
 		this.index = index;
 	}
-	public IndexI getIndex(){
+	public Index getIndex(){
 		return this.index;
 	}
 
