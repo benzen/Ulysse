@@ -22,129 +22,127 @@ import org.apache.lucene.document.Field;
 import org.qualipso.factory.FactoryResourceIdentifier;
 
 /**
- * <p>
- * Class which specify the property of indexable document. Documents are the
- * unit of indexing. A Document is a set of fields. Each field has a name and a
- * textual value.
- * </p>
- * 
- * @see IndexableDocumentI
+ * A document is serializble repesentation of a factory resource. 
  * @author Benjamin DREUX
  * @author cynthia FLORENTIN
  * @author Jerome Blanchard (jayblanc@gmail.com)
  * @date 20 May 2009
  */
+
+
 public class IndexableDocument {
-    private FactoryResourceIdentifier resourceIdentifier;
+    private FactoryResourceIdentifier resourceFRI;
     private String resourceService;
     private String resourceType;
     private String path;
     private IndexableContent indexableContent;
 
-    /**
-     * <p>
-     * Set a Factory Resource Identifier (FRI) reference of document with a
-     * FactoryResourceIdentifier
-     * </p>
-     * 
-     * @param resourceFRI
-     *            is a FactoryResourceIdentifier
-     */
-    public void setResourceIdentifier(FactoryResourceIdentifier resourceIdentifier) {
-        this.resourceIdentifier = resourceIdentifier;
-    }
+
 
     /**
-     * <p>
-     * Set the service of document with the string
-     * </p>
-     * 
-     * @param resourceService
-     *            is a string
+     * Set the Factory Resource Identifier wich identfie the resource represented by this document.
+     * @param resourceFRI the identifier of the resource
+     */
+    public void setResourceIdentifier(FactoryResourceIdentifier resourceFRI){
+    	this.resourceFRI = resourceFRI;
+    }
+    
+    /**
+     * Set the name of the service which create the resource represented by this document.
+     * @param resourceService name of the service.
      */
     public void setResourceService(String resourceService) {
         this.resourceService = resourceService;
     }
 
-    /**
-     * <p>
-     * Set the type of document with a string
-     * </p>
-     * 
-     * @param resourceType
-     *            is a string
+
+    /*
+     * Set the type of the resource represented by this document.
+     * @param resourceType A string wich represent the type of resource.
      */
-    public void setResourceType(String resourceType) {
+     public void setResourceType(String resourceType) {
         this.resourceType = resourceType;
     }
 
-    /**
-     * <p>
-     * set an object of type IndexableContent
-     * </p>
-     * 
-     * @param indexableContent
+    /*
+     * Set the name of the resource represented by this document.
+     * @param resourceShortName the name of the resource
+     */
+    
+
+    /*
+     * Set the content of the resource represented by this document.
+     * @param indexableContent the content of the resource
      */
     public void setIndexableContent(IndexableContent indexableContent) {
         this.indexableContent = indexableContent;
     }
-
+    
     /**
-     *@see IndexableDocumentI#setResourcePath()
-     **/
-    public void setResourcePath(String path) {
-        this.path = path;
+    * Set the path of the resource represented by this document.
+    * @param path the path of the resource
+    **/
+    public void setResourcePath(String path){
+    	this.path = path;
+
     }
 
     /**
-     * @see IndexableDocumentI#getResourceURI()
+     * Get the identifier of the resource represented by this document.
+     * @return the identifier.
      */
     public FactoryResourceIdentifier getResourceIdentifier() {
-        return resourceIdentifier;
+        return resourceFRI;
 
     }
 
     /**
-     * @see IndexableDocumentI#getResourceService()
+     * Get the name of the service wich create the resource represented by this document.
+     * @return the name of the service.
      */
     public String getResourceService() {
         return resourceService;
     }
 
     /**
-     * @see IndexableDocumentI#getResourceType()
+     * Get the type of resource represented by this document.
+     * @return the type of the resource.
      */
     public String getResourceType() {
         return resourceType;
     }
 
+    
+    
+
     /**
-     * @see IndexableDocumentI#getIndexableContent()
+     * Get the content of the resource represented by this document.
+     * @return the content of the resource.
      */
     public IndexableContent getIndexableContent() {
         return indexableContent;
     }
 
     /**
-     * @see IndexableDocumentI#getResourcePath()
-     **/
-    public String getResourcePath() {
-        return path;
+    * Get the path tio the resource represented by this document.
+    * @return the path to the resource, when it was indexed.
+    **/
+    public String getResourcePath(){
+    	return path;
     }
 
     /**
-     * <p>
-     * Give a document. A Document has a list of fields; each field has a name
-     * and a textual value. A field Index specifies whether and how a field
-     * should be indexed. Index the tokens produced by running the field's value
-     * through an Analyzer.
+     * <p> Give a lucene document. 
+     * A Document has a list of fields; each field has a name and a textual value.  
+     * A field Index specifies whether and how a field should be indexed. 
+     * Index the tokens produced by running the field's value through an Analyzer.
      * </p>
      * 
      * @return a Lucene Document is a record in the index.
      */
     public Document getDocument() {
         Document document = new Document();
-        document.add(new Field("IDENTIFIER", resourceIdentifier.serialize(), Field.Store.YES, Field.Index.NOT_ANALYZED));
+        document.add(new Field("IDENTIFIER", resourceFRI.serialize(), Field.Store.YES, Field.Index.NOT_ANALYZED));
         document.add(new Field("SERVICE", resourceService, Field.Store.YES, Field.Index.NO));
         document.add(new Field("TYPE", resourceType, Field.Store.YES, Field.Index.NO));
         document.add(new Field("PATH", path, Field.Store.YES, Field.Index.NOT_ANALYZED));

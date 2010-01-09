@@ -108,4 +108,5 @@ public class IndexingServiceTest extends BaseSessionBeanFixture<IndexingServiceB
         }
 
     }
+
 }

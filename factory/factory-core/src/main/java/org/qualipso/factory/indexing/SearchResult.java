@@ -25,6 +25,7 @@ import javax.xml.bind.annotation.XmlType;
 
 import org.qualipso.factory.FactoryNamingConvention;
 import org.qualipso.factory.FactoryResourceIdentifier;
+import java.io.Serializable;
 
 /**
  * <p>
@@ -39,6 +40,7 @@ import org.qualipso.factory.FactoryResourceIdentifier;
  * @date 20 May 2009
  */
 
+
 // TODO move this class to the factory level (FactorySearchResult)
 @XmlType(name = "search-result", namespace = FactoryNamingConvention.SEARCH_NAMESPACE, propOrder = { "path", "score", "explain", "name", "type", "identifier" })
 public class SearchResult implements Serializable {
@@ -52,35 +54,25 @@ public class SearchResult implements Serializable {
     private FactoryResourceIdentifier resourceFRI;
 
     /**
-     * <p>
-     * Give the path on the result of search
-     * </p>
-     * 
-     * @return a string which correspond the path
+     * Get the path to resource.
+     * @return the  path to resource when it was indexed.
      */
-    @XmlAttribute(name = "id", required = true)
+    @XmlAttribute(name = "identifier", required = true)
     public String getPath() {
         return path;
     }
 
     /**
-     * <p>
-     * Set the path of document
-     * </p>
-     * 
-     * @param path, a string which correspond the path
+     * Set the path to the resource.
+     *@param path the path to the resource
      */
     public void setPath(String path) {
         this.path = path;
     }
 
     /**
-     * <p>
-     * Give the percentage of correspondence between the query and the number of
-     * total result
-     * </p>
-     * 
-     * @return a number of type float which correspond the score
+     * Get the score(correspond to the matching to a given to a search query)
+     * @return the score of the search result.
      */
     @XmlAttribute(name = "score", required = true)
     public float getScore() {
@@ -88,22 +80,16 @@ public class SearchResult implements Serializable {
     }
 
     /**
-     * <p>
-     * Set the score of document which is the percent
-     * </p>
-     * 
-     * @param score, a number of type float which correspond the score
+     * Set the score(correspond to the matching to a given to a search query)
+     * @param score the score of the result.
      */
     public void setScore(float score) {
         this.score = score;
     }
 
     /**
-     * <p>
-     * Give a little description who is associated to the path of document
-     * </p>
-     * 
-     * @return a string which is a description of document
+     * Get a text to explain the content of a resource described by the searchResult.
+     * @return the explanation.
      */
     @XmlAttribute(name = "explain", required = true)
     public String getExplain() {
@@ -111,23 +97,15 @@ public class SearchResult implements Serializable {
     }
 
     /**
-     * <p>
-     * Set the description of document
-     * </p>
-     * 
-     * @param explain
-     *            , a string which is a description of document
+     * Set a text to explain the content of the resource.
      */
     public void setExplain(String explain) {
         this.explain = explain;
     }
 
     /**
-     * <p>
-     * Give the name of document
-     * </p>
-     * 
-     * @return the string which is the name
+     * Get the name of the resource presented by the result.
+     * @return the name of the resource
      */
     @XmlAttribute(name = "name", required = true)
     public String getName() {
@@ -146,11 +124,8 @@ public class SearchResult implements Serializable {
     }
 
     /**
-     * <p>
-     * Give the type of document
-     * </p>
-     * 
-     * @return the type of document
+     * Get the type of the resource described by this result.
+     * @return the type of the resource
      */
     @XmlAttribute(name = "type", required = true)
     public String getType() {
@@ -158,23 +133,16 @@ public class SearchResult implements Serializable {
     }
 
     /**
-     * <p>
-     * Set the type of document
-     * </p>
-     * 
-     * @param type, a string which is the type of document
+     * Set the type of the resource represented by this search result.
+     * @param type the type of the resource.
      */
     public void setType(String type) {
         this.type = type;
     }
 
     /**
-     * <p>
-     * Give an object which is a ressource of identifier
-     * </p>
-     * 
-     * @return an object FactoryResourceIdentifier
-     * @see org.qualipso.factory.FactoryResourceIdentifier
+     * Get the identifier of the resource.
+     * @return the identfier of the resource.
      */
     @XmlTransient
     public FactoryResourceIdentifier getFactoryResourceIdentifier() {
@@ -182,26 +150,16 @@ public class SearchResult implements Serializable {
     }
 
     /**
-     * <p>
-     * Set a object FactoryResourceIdentifier
-     * </p>
-     * 
-     * @param resourceIdentifier
-     *            is an object FactoryResourceIdentifier
-     * @see org.qualipso.factory.FactoryResourceIdentifier
+     * Set the identfier of the resource described by this result.
+     * @param resourceIdentfier the identifier of the resource.
      */
     public void setFactoryResourceIdentifier(FactoryResourceIdentifier resourceIdentifier) {
         this.resourceFRI = resourceIdentifier;
     }
 
     /**
-     * <p>
-     * Set a object FactoryResourceIdentifier
-     * </p>
-     * 
-     * @param resourceIdentifier
-     *            is a String
-     * @see org.qualipso.factory.FactoryResourceIdentifier
+     * Set the identfier of the resource described by this result.
+     * @param resourceIdentfier the identifier of the resource as a string.
      */
     public void setFactoryResourceIdentifier(String resourceIdentifier) {
         this.resourceFRI = FactoryResourceIdentifier.deserialize(resourceIdentifier);

@@ -63,6 +63,7 @@ public class IndexingServiceBean implements IndexingService {
 	private ConnectionFactory connectionFactory;
 	private Topic topic;
 
+
 	public IndexingServiceBean() {
 	}
 
