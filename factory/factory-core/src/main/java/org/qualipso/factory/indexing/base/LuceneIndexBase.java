@@ -158,5 +158,22 @@ public class LuceneIndexBase implements IndexBase {
         }
 
     }
+    
+    @Override
+    public void reset() throws IndexingServiceException{
+        try{
+            synchronized{
+                writer = new IndexWriter(FSDirectory.open(indexDir), analyzer, false, IndexWriter.MaxFieldLength.UNLIMITED);
+                writer.deleteAll();
+            }
+        }catch(Exception e){
+            logger.error("unable to reset the index",e);
+            throw new IndexingServiceException("unable to reset the index");
+        }
+        finally{
+            writer.close();
+        }
+                
+    }
 
 }
