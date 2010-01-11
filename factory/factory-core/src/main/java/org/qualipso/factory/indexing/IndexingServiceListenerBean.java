@@ -16,6 +16,7 @@ package org.qualipso.factory.indexing;
  * Gérald Oster / Nancy Université
  *
  */
+
 import javax.annotation.Resource;
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.EJB;
@@ -50,10 +51,12 @@ public class IndexingServiceListenerBean implements MessageListener {
     private static Log logger = LogFactory.getLog(IndexingServiceListenerBean.class);
 
     // time period between two attempt to get the IndexableDocument
-    private static int waitingTime = 10;
+    private static int waitingTime = 100;
+    private static int maxAttempt = 3;
     private MessageDrivenContext ctx;
     private BindingService binding;
     private IndexBase index;
+
     
     @Resource
     public void setMessageDrivenContext(MessageDrivenContext ctx) {
@@ -99,8 +102,8 @@ public class IndexingServiceListenerBean implements MessageListener {
             if (action.equals("remove"))
                 this.removeFromIndexBase(path);
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ex) {
+            logger.error("Unexpected message", ex);
         }
 
     }
@@ -111,6 +114,7 @@ public class IndexingServiceListenerBean implements MessageListener {
         logger.debug("params : path=" + path);
         getIndexBase().index(toIndexableDocument(path));
 
+
     }
 
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
@@ -118,6 +122,7 @@ public class IndexingServiceListenerBean implements MessageListener {
         logger.info("reindex(...) called");
         logger.debug("params : path=" + path);
         getIndexBase().reindex(path, toIndexableDocument(path));
+ 
     }
 
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
@@ -129,14 +134,29 @@ public class IndexingServiceListenerBean implements MessageListener {
 
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
     private IndexableDocument toIndexableDocument(String path) throws IndexingServiceException {
+        int nbAttempt = 0;   
+        boolean succes = false;
         try {
-        	//TODO add a better strategy than waiting some time before asking content to index.
-        	Thread.sleep(waitingTime);
+
         	FactoryResourceIdentifier identifier = binding.lookup(path);
         	IndexableService service = Factory.findIndexableService(identifier.getService());
-        	
-        	IndexableContent content = ((IndexableService)service).getIndexableContent(path);
-        		
+        	IndexableContent content = null;
+        	//if the action fails because of inconsitancy between 
+        	//reel and index, retry this action tree time
+        	while(nbAttempt <= maxAttempt && !succes){
+            	try{
+                   	content = ((IndexableService)service).getIndexableContent(path);
+                    succes = true;
+           	     }catch(Exception e){
+                    Thread.sleep(waitingTime);
+                    nbAttempt++;
+                }
+               
+            }
+            if(content == null ){
+                throw new IndexingServiceException("unable to acces to resource "+path);
+            }
+     		
         	IndexableDocument document = new IndexableDocument();
         	document.setResourceIdentifier(identifier);
             document.setResourcePath(path);
@@ -146,10 +166,35 @@ public class IndexingServiceListenerBean implements MessageListener {
             	
             return document;
         } catch (Exception e) {
-            logger.error("unable to get indexable content for resource " + path, e);
-            throw new IndexingServiceException("unable to get indexable content for resource " + e);
+            logger.error("unable index resource " + path, e);
+            throw new IndexingServiceException("unable index resource " + e);
         }
 
+        
     }
+/*
+    private class RetryIndexTask extends TimerTask{
+  
+        public RetryIndexTask(HashMap<String,Integer> map){
+            this.map = map;
+        }
+    
+        public void run(){
+            logger.info("retyIndex(...) called");
+            for (Iterator<String> i = map.keySet().iterator() ; i.hasNext() ; ){
+                String key = i.next();
+                Integer value = map.get(i.next());
+                try{
+                    addToIndexBase(key);
+                }catch(Exception e){
+                    map.remove(key);
+                    if(value>1){
+                        map.put(key,value-1);  
+                    }            
+                }
+            }
+        }
+    }
+*/
 
 }

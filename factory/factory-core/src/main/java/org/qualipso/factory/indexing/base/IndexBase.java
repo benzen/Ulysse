@@ -75,6 +75,6 @@ public interface IndexBase {
      * Erase the index and create a new one.
      * @thows IndexingServiceException if an error occur during new index creation.
      */
-    public void reset() throws IndexingServiceException
+    public void reset() throws IndexingServiceException;
 
 }

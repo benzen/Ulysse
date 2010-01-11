@@ -26,9 +26,10 @@ import org.apache.lucene.search.highlight.Highlighter;
 import org.apache.lucene.search.highlight.QueryScorer;
 import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.util.Version;
 import org.qualipso.factory.indexing.IndexableDocument;
 import org.qualipso.factory.indexing.IndexingServiceException;
-import org.qualipso.factory.indexing.QualipsoAnalyzer;
 import org.qualipso.factory.indexing.SearchResult;
 
 public class LuceneIndexBase implements IndexBase {
@@ -42,7 +43,7 @@ public class LuceneIndexBase implements IndexBase {
     private LuceneIndexBase() throws Exception {
 
         indexDir = new File(indexFolderName);
-        analyzer = new QualipsoAnalyzer();
+        analyzer = new StandardAnalyzer(Version.LUCENE_CURRENT);
 
         synchronized (this) {
             if (!indexDir.exists()) {
@@ -162,16 +163,17 @@ public class LuceneIndexBase implements IndexBase {
     @Override
     public void reset() throws IndexingServiceException{
         try{
-            synchronized{
-                writer = new IndexWriter(FSDirectory.open(indexDir), analyzer, false, IndexWriter.MaxFieldLength.UNLIMITED);
-                writer.deleteAll();
+            synchronized(this){
+                try{
+                    writer = new IndexWriter(FSDirectory.open(indexDir), analyzer, false, IndexWriter.MaxFieldLength.UNLIMITED);
+                    writer.deleteAll();
+                }finally{
+                    writer.close();
+                 }
             }
         }catch(Exception e){
             logger.error("unable to reset the index",e);
             throw new IndexingServiceException("unable to reset the index");
-        }
-        finally{
-            writer.close();
         }
                 
     }

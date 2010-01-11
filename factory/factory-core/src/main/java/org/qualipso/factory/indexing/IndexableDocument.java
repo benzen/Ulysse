@@ -143,8 +143,8 @@ public class IndexableDocument {
     public Document getDocument() {
         Document document = new Document();
         document.add(new Field("IDENTIFIER", resourceFRI.serialize(), Field.Store.YES, Field.Index.NOT_ANALYZED));
-        document.add(new Field("SERVICE", resourceService, Field.Store.YES, Field.Index.NO));
-        document.add(new Field("TYPE", resourceType, Field.Store.YES, Field.Index.NO));
+        document.add(new Field("SERVICE", resourceService, Field.Store.YES, Field.Index.NOT_ANALYZED));
+        document.add(new Field("TYPE", resourceType, Field.Store.YES, Field.Index.NOT_ANALYZED));
         document.add(new Field("PATH", path, Field.Store.YES, Field.Index.NOT_ANALYZED));
         document.add(new Field("CONTENT", indexableContent.toString(), Field.Store.YES, Field.Index.ANALYZED));
         return document;
