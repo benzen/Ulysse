@@ -5,4 +5,9 @@
       <attribute name="JNDIName">topics/factoryIndexing</attribute>
       <depends optional-attribute-name="DestinationManager">jboss.mq:service=DestinationManager</depends>
    </mbean>
+   <mbean code="org.jboss.mq.server.jmx.Queue" 
+      name="jboss.mq.destination:service=Queue,name=factoryIndexingPrivate">
+      <attribute name="JNDIName">queue/factoryIndexingPrivate</attribute>
+      <depends optional-attribute-name="DestinationManager">jboss.mq:service=DestinationManager</depends>
+   </mbean>
 </server> 

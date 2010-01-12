@@ -26,6 +26,12 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.jms.Message;
 import javax.jms.MessageListener;
+import javax.jms.JMSException;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.Queue;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,6 +41,7 @@ import org.qualipso.factory.FactoryResourceIdentifier;
 import org.qualipso.factory.binding.BindingService;
 import org.qualipso.factory.indexing.base.IndexBase;
 import org.qualipso.factory.indexing.base.IndexBaseFactory;
+import org.qualipso.factory.binding.BindingService;
 
 /**
  * @date 2 dec 2009
@@ -50,12 +57,13 @@ public class IndexingServiceListenerBean implements MessageListener {
 
     private static Log logger = LogFactory.getLog(IndexingServiceListenerBean.class);
 
-    // time period between two attempt to get the IndexableDocument
-    private static int waitingTime = 100;
+    // nb time the action will be retryied
     private static int maxAttempt = 3;
     private MessageDrivenContext ctx;
+    private Queue queue;
+    private ConnectionFactory connectionFactory;
     private BindingService binding;
-    private IndexBase index;
+
 
     
     @Resource
@@ -67,134 +75,74 @@ public class IndexingServiceListenerBean implements MessageListener {
     	return this.ctx;
     }
     
-    @EJB
-    public void setBindingService(BindingService binding) {
-        this.binding = binding;
-    }
+    @Resource(mappedName = "ConnectionFactory")
+	public void setConnectionFactory(ConnectionFactory connectionFactory) {
+		this.connectionFactory = connectionFactory;
+	}
 
-    public BindingService getBindingService() {
-        return binding;
-    }
+	public ConnectionFactory getConnectionFatory() {
+		return this.connectionFactory;
+	}
+
+	@Resource(mappedName = "queue/factoryIndexingPrivate")
+	public void setQueue(Queue queue) {
+		this.queue = queue;
+	}
+
+	public Queue getQueue() {
+		return this.queue;
+	}
+	@EJB
+	public void setBindingService(BindingService binding){
+	    this.binding = binding;
+	}
+	public BindingService getBindingService(){
+	    return this.binding;
+	}
     
-    private IndexBase getIndexBase() {
-    	if ( index == null ) {
-    		try {
-    			index = IndexBaseFactory.getIndexBase();
-    		} catch ( Exception e ) {
-    			logger.error("unable to get index base", e);
-    		}
-    	}
-    	return index;
-    }
+
+    
 
     @Override
-    @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public void onMessage(Message msg) {
         logger.info("onMessage(...) called");
         logger.debug("params : message=" + msg);
         try {
-        	String path = msg.getStringProperty("path");
         	String action = msg.getStringProperty("action");
-            if (action.equals("index"))
-                this.addToIndexBase(path);
-            if (action.equals("reindex"))
-                this.updateInIndexBase(path);
-            if (action.equals("remove"))
-                this.removeFromIndexBase(path);
+        	String path = msg.getStringProperty("path");
+        	try{
+        	    IndexOwner indexOwner = new IndexOwner(binding);
+            	indexOwner.execute(action, path);
+            }catch(IndexingServiceException e){
+                send(action,path);
+           	}
 
-        } catch (Exception ex) {
+
+        } catch (JMSException ex) {
             logger.error("Unexpected message", ex);
         }
 
     }
-
-    @TransactionAttribute(TransactionAttributeType.REQUIRED)
-    private void addToIndexBase(String path) throws IndexingServiceException {
-        logger.info("index(...) called");
-        logger.debug("params : path=" + path);
-        getIndexBase().index(toIndexableDocument(path));
-
-
-    }
-
-    @TransactionAttribute(TransactionAttributeType.REQUIRED)
-    private void updateInIndexBase(String path) throws IndexingServiceException {
-        logger.info("reindex(...) called");
-        logger.debug("params : path=" + path);
-        getIndexBase().reindex(path, toIndexableDocument(path));
- 
-    }
-
-    @TransactionAttribute(TransactionAttributeType.REQUIRED)
-    private void removeFromIndexBase(String path) throws IndexingServiceException {
-        logger.info("remove(...) called");
-        logger.debug("params : path=" + path);
-        getIndexBase().remove(path);
-    }
-
-    @TransactionAttribute(TransactionAttributeType.REQUIRED)
-    private IndexableDocument toIndexableDocument(String path) throws IndexingServiceException {
-        int nbAttempt = 0;   
-        boolean succes = false;
-        try {
-
-        	FactoryResourceIdentifier identifier = binding.lookup(path);
-        	IndexableService service = Factory.findIndexableService(identifier.getService());
-        	IndexableContent content = null;
-        	//if the action fails because of inconsitancy between 
-        	//reel and index, retry this action tree time
-        	while(nbAttempt <= maxAttempt && !succes){
-            	try{
-                   	content = ((IndexableService)service).getIndexableContent(path);
-                    succes = true;
-           	     }catch(Exception e){
-                    Thread.sleep(waitingTime);
-                    nbAttempt++;
-                }
-               
-            }
-            if(content == null ){
-                throw new IndexingServiceException("unable to acces to resource "+path);
-            }
-     		
-        	IndexableDocument document = new IndexableDocument();
-        	document.setResourceIdentifier(identifier);
-            document.setResourcePath(path);
-            document.setResourceService(identifier.getService());
-            document.setResourceType(identifier.getType());
-            document.setIndexableContent(content);
-            	
-            return document;
-        } catch (Exception e) {
-            logger.error("unable index resource " + path, e);
-            throw new IndexingServiceException("unable index resource " + e);
-        }
-
-        
-    }
-/*
-    private class RetryIndexTask extends TimerTask{
-  
-        public RetryIndexTask(HashMap<String,Integer> map){
-            this.map = map;
-        }
     
-        public void run(){
-            logger.info("retyIndex(...) called");
-            for (Iterator<String> i = map.keySet().iterator() ; i.hasNext() ; ){
-                String key = i.next();
-                Integer value = map.get(i.next());
-                try{
-                    addToIndexBase(key);
-                }catch(Exception e){
-                    map.remove(key);
-                    if(value>1){
-                        map.put(key,value-1);  
-                    }            
-                }
-            }
-        }
-    }
-*/
-
+    private void send(String action, String path) {
+        try {
+			Connection connection = connectionFactory.createConnection();
+			Session session = connection.createSession(false, javax.jms.Session.AUTO_ACKNOWLEDGE);
+			MessageProducer producer = session.createProducer(queue);
+			Message message = session.createMessage();
+			message.setStringProperty("action", action);
+			message.setStringProperty("path", path);
+			message.setIntProperty("counter",maxAttempt);
+			connection.start();
+			producer.send(message);
+			producer.close();
+			session.close();
+			connection.close();
+		} catch (JMSException e) {
+			logger.error("Unable to send message " + action, e);
+		}
+	}
+        
 }
+
+
