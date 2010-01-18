@@ -1,5 +1,3 @@
-package org.qualipso.factory.indexing;
-
 /*
  *
  * Qualipso Factory
@@ -16,48 +14,47 @@ package org.qualipso.factory.indexing;
  * Gérald Oster / Nancy Université
  *
  */
-
-import javax.annotation.Resource;
-import javax.ejb.ActivationConfigProperty;
-import javax.ejb.EJB;
-import javax.ejb.MessageDriven;
-import javax.ejb.MessageDrivenContext;
-import javax.jms.Message;
-import javax.jms.MessageListener;
-import javax.jms.JMSException;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.Queue;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.jboss.ejb3.annotation.Depends;
+package org.qualipso.factory.indexing;
 
 import org.qualipso.factory.binding.BindingService;
+import javax.annotation.Resource;
+import org.jboss.ejb3.annotation.Depends;
+import javax.ejb.EJB;
+import javax.ejb.ActivationConfigProperty;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageListener;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
+import javax.jms.Queue;
+import javax.ejb.MessageDriven;
+import javax.ejb.MessageDrivenContext;
+
 
 /**
- * @date 2 dec 2009
+ * @date 12 jan 2010
  * @author Benjamin Dreux(benjiiiiii@gmail.com)
- */
-
-@MessageDriven(mappedName = "indexingListener", activationConfig = {
-        @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Topic"),
-        @ActivationConfigProperty(propertyName = "destination", propertyValue = "topics/factoryIndexing"),
+ */ 
+ 
+ 
+@MessageDriven(mappedName = "indexingPrivateListener", activationConfig = {
+        @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
+        @ActivationConfigProperty(propertyName = "destination", propertyValue = "queue/factoryIndexingPrivate"),
         @ActivationConfigProperty(propertyName = "messagingType", propertyValue = "javax.jms.MessageListener") })
-@Depends("jboss.mq.destination:service=Topic,name=factoryIndexing")
-public class IndexingServiceListenerBean implements MessageListener {
+@Depends("jboss.mq.destination:service=Queue,name=factoryIndexingPrivate")
+public class IndexingServicePrivateListenerBean implements MessageListener {
 
     private static Log logger = LogFactory.getLog(IndexingServiceListenerBean.class);
-
-    // nb time the action will be retryied
-    private static int maxAttempt = 3;
     private MessageDrivenContext ctx;
     private Queue queue;
     private ConnectionFactory connectionFactory;
     private BindingService binding;
     private IndexingServiceIndexOwner indexOwner;
+
 
 
     
@@ -69,7 +66,6 @@ public class IndexingServiceListenerBean implements MessageListener {
     public MessageDrivenContext getMessageDrivenContext() {
     	return this.ctx;
     }
-    
     @Resource(mappedName = "ConnectionFactory")
 	public void setConnectionFactory(ConnectionFactory connectionFactory) {
 		this.connectionFactory = connectionFactory;
@@ -103,32 +99,35 @@ public class IndexingServiceListenerBean implements MessageListener {
 	    }
 	    return this.indexOwner;
 	}
-	
-    
 
     
-
-    @Override
+   @Override
     public void onMessage(Message msg) {
         logger.info("onMessage(...) called");
         logger.debug("params : message=" + msg);
+        
+        String path = null;
+      	String action = null;
+        int counter = -1;
         try {
-        	String action = msg.getStringProperty("action");
-        	String path = msg.getStringProperty("path");
-        	try{
-                getIndexOwner().execute(action, path);
-            }catch(IndexingServiceException e){
-                send(action,path);
-           	}
-
-
-        } catch (JMSException ex) {
+           	path = msg.getStringProperty("path");
+        	action = msg.getStringProperty("action");
+            counter = msg.getIntProperty("counter");
+            
+            if( counter > 0){   	
+                getIndexOwner().execute(action,path);
+            }
+            
+        }catch(IndexingServiceException e){
+            //action fail
+            send(action,path,counter-1);
+            logger.error(action+ " of "+ path+" rescheduled", e);
+        }catch (JMSException ex) {
             logger.error("Unexpected message", ex);
         }
 
     }
-    
-    private void send(String action, String path) {
+    private void send(String action, String path, int counter){
         try {
 			Connection connection = connectionFactory.createConnection();
 			Session session = connection.createSession(false, javax.jms.Session.AUTO_ACKNOWLEDGE);
@@ -136,7 +135,7 @@ public class IndexingServiceListenerBean implements MessageListener {
 			Message message = session.createMessage();
 			message.setStringProperty("action", action);
 			message.setStringProperty("path", path);
-			message.setIntProperty("counter",maxAttempt);
+			message.setIntProperty("counter",counter);
 			connection.start();
 			producer.send(message);
 			producer.close();
@@ -146,7 +145,5 @@ public class IndexingServiceListenerBean implements MessageListener {
 			logger.error("Unable to send message " + action, e);
 		}
 	}
-        
 }
-
 

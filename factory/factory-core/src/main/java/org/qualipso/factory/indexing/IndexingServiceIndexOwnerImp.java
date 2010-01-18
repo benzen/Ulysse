@@ -20,13 +20,6 @@ package org.qualipso.factory.indexing;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.qualipso.factory.binding.BindingService;
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
-import javax.jms.Queue;
 import org.qualipso.factory.Factory;
 import org.qualipso.factory.FactoryResourceIdentifier;
 import org.qualipso.factory.indexing.base.IndexBaseFactory;
@@ -37,20 +30,26 @@ import org.qualipso.factory.indexing.base.IndexBase;
  * @author Benjamin Dreux(benjiiiiii@gmail.com)
  */
 
-public class IndexOwner{
+public class IndexingServiceIndexOwnerImp implements IndexingServiceIndexOwner{
 
     private static Log logger = LogFactory.getLog(IndexingServiceListenerBean.class);
     private BindingService binding;
     private IndexBase index;
     
-    public IndexOwner(BindingService binding){
+    public IndexingServiceIndexOwnerImp(BindingService binding){
        setBindingService(binding);
     }
 
+    /* (non-Javadoc)
+	 * @see org.qualipso.factory.indexing.IndexingServiceIndexOwner#setBindingService(org.qualipso.factory.binding.BindingService)
+	 */
     public void setBindingService(BindingService binding) {
         this.binding = binding;
     }
 
+    /* (non-Javadoc)
+	 * @see org.qualipso.factory.indexing.IndexingServiceIndexOwner#getBindingService()
+	 */
     public BindingService getBindingService() {
         return binding;
     }
@@ -66,6 +65,9 @@ public class IndexOwner{
     	return index;
     }
     
+    /* (non-Javadoc)
+	 * @see org.qualipso.factory.indexing.IndexingServiceIndexOwner#execute(java.lang.String, java.lang.String)
+	 */
     public void execute(String action,String path) throws IndexingServiceException{
         if(action.equals("index"))
             addToIndexBase(path);

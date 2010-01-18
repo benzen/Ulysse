@@ -28,6 +28,7 @@ import org.qualipso.factory.test.entity.GroupTest;
 import org.qualipso.factory.test.entity.LinkTest;
 import org.qualipso.factory.test.entity.NodeTest;
 import org.qualipso.factory.test.entity.ProfileTest;
+import org.qualipso.factory.test.messagebean.IndexingServiceListenerBeanTest;
 import org.qualipso.factory.test.sessionbean.AuthenticationServiceTest;
 import org.qualipso.factory.test.sessionbean.BindingServiceTest;
 import org.qualipso.factory.test.sessionbean.BootstrapServiceTest;
@@ -48,7 +49,29 @@ import org.qualipso.factory.test.sessionbean.SecurityServiceTest;
  */
 @RunWith(Suite.class)
 @SuiteClasses(value =  {
-    PathHelperTest.class, PAPServiceHelperTest.class, PEPServiceHelperTest.class, FilePolicyRepositoryTest.class, NodeTest.class, ProfileTest.class, GroupTest.class, FolderTest.class, FileTest.class, LinkTest.class, BootstrapServiceTest.class, AuthenticationServiceTest.class, BindingServiceTest.class, PAPServiceTest.class, CoreServiceTest.class, BrowserServiceTest.class, MembershipServiceTest.class, SecurityServiceTest.class, IndexingServiceTest.class, EventQueueServiceTest.class, EventQueueRulesServiceTest.class, NotificationServiceTest.class}
+    PathHelperTest.class,
+    PAPServiceHelperTest.class,
+    PEPServiceHelperTest.class,
+    FilePolicyRepositoryTest.class,
+    NodeTest.class,
+    ProfileTest.class,
+    GroupTest.class,
+    FolderTest.class,
+    FileTest.class,
+    LinkTest.class,
+    BootstrapServiceTest.class,
+    AuthenticationServiceTest.class,
+    BindingServiceTest.class,
+    PAPServiceTest.class,
+    CoreServiceTest.class,
+    BrowserServiceTest.class,
+    MembershipServiceTest.class,
+    SecurityServiceTest.class,
+    IndexingServiceTest.class,
+    IndexingServiceListenerBeanTest.class,
+    EventQueueServiceTest.class,
+    EventQueueRulesServiceTest.class,
+    NotificationServiceTest.class}
 )
 public class AllTests {
 }

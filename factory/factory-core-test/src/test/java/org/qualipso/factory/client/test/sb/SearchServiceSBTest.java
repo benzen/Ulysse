@@ -16,9 +16,7 @@
  */
 package org.qualipso.factory.client.test.sb;
 
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.Pointcut;
+
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -48,15 +46,13 @@ import org.qualipso.factory.client.test.AllTests;
 import org.qualipso.factory.core.CoreService;
 import org.qualipso.factory.greeting.GreetingServiceException;
 import org.qualipso.factory.indexing.SearchResult;
-import org.qualipso.factory.indexing.IndexingServiceException;
-import org.qualipso.factory.indexing.IndexingServiceListenerBean;
-import org.qualipso.factory.indexing.IndexableDocument;
 import org.qualipso.factory.membership.MembershipService;
 import org.qualipso.factory.membership.MembershipServiceException;
 import org.qualipso.factory.search.SearchService;
 import org.qualipso.factory.search.SearchServiceException;
 import org.qualipso.factory.security.SecurityService;
 import org.qualipso.factory.security.SecurityServiceException;
+
 
 /**
  * 
@@ -80,7 +76,8 @@ public class SearchServiceSBTest {
     private static BrowserService browser;
     private static FactoryResourceIdentifier friB, friF, friFB;
     private static int waitingTime = 3000;
-    private static boolean exceptionInjection = false;
+
+
 
     /**
      * Set up service for all tests and log in as kermit thefrog.
@@ -400,60 +397,8 @@ public class SearchServiceSBTest {
         loginContextRoot.logout();
     }
     
-     /**
-     * ====== BOUNDARY ===== 
-     * Test search of deleted resource
-     * 
-     */
-    @Test
-    public void testDelayedResourceAvailibility() throws Exception {
-        logger.info("Testing indexing a delayed avability resource");
-        
-        loginContextRoot.login();
-
-        //turn on aspects
-        //inject a excpetion when trying to get indexableContent 
-        exceptionInjection = true;
-        core.createFolder("/indexingtests/delayed_forge", "delayed_forge", "a delayed forge folder description");
-        
-        //search should return 0 result
-        ArrayList<SearchResult> result = search.searchResource("delayed AND forge");
-        assertEquals("The ArrayList should contain exactly 0 results", 0, result.size());
-
-        //at this point indexablecontent isn't available(due to exception injection)
-        Thread.sleep(200);
-        exceptionInjection = false;
-        //now it should be available
-        
-        FactoryResourceIdentifier friDF = browser.findResource("/indexingtests/delayed_forge").getFactoryResourceIdentifier();
-        Thread.sleep(200);
-        
-        //Now search should return 1 results
-        result = search.searchResource("delayed AND forge");
-        assertEquals("The ArrayList should contain exactly one results", 1, result.size());
-        assertThat("The expected result should be the resource FORGE", result, hasItem(searchResultWithFactoryResourceIdentifier(friDF)));
 
 
 
-        core.deleteFolder("/indexingtests/delayed_forge");
-        Thread.sleep(waitingTime);
-
-        loginContextRoot.logout();
-    }
-    
-    @Aspect
-    private static class IndexingExceptionInjector{
-
-        @Pointcut("call(* IndexingServiceListenerBean.toIndexableDocument(..) throws IndexingServiceException)")
-        void toIndexableDocument(){}
-        
-    
-        @org.aspectj.lang.annotation.After("toIndexableDocument()")
-        public void injectException() throws IndexingServiceException{
-            if(exceptionInjection){
-                throw new IndexingServiceException("");
-            }
-        }   
-    }
 
 }
