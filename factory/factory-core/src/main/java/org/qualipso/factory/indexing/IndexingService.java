@@ -41,6 +41,8 @@ import org.qualipso.factory.FactoryService;
 @Local
 public interface IndexingService extends FactoryService {
     public static final String SERVICE_NAME = "indexing";
+    public static final String INDEX_PATH = "data/index/";
+    public static final int NB_RETRY = 3;
     public static final String[] RESOURCE_TYPE_LIST = new String[] {};
 
     /**

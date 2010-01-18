@@ -51,8 +51,7 @@ public class IndexingServiceListenerBean implements MessageListener {
 
     private static Log logger = LogFactory.getLog(IndexingServiceListenerBean.class);
 
-    // nb time the action will be retryied
-    private static int maxAttempt = 3;
+
     private MessageDrivenContext ctx;
     private Queue queue;
     private ConnectionFactory connectionFactory;
@@ -136,7 +135,7 @@ public class IndexingServiceListenerBean implements MessageListener {
 			Message message = session.createMessage();
 			message.setStringProperty("action", action);
 			message.setStringProperty("path", path);
-			message.setIntProperty("counter",maxAttempt);
+			message.setIntProperty("counter",IndexingService.NB_RETRY);
 			connection.start();
 			producer.send(message);
 			producer.close();

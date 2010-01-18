@@ -29,12 +29,12 @@ import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.util.Version;
 import org.qualipso.factory.indexing.IndexableDocument;
+import org.qualipso.factory.indexing.IndexingService;
 import org.qualipso.factory.indexing.IndexingServiceException;
 import org.qualipso.factory.indexing.SearchResult;
 
 public class LuceneIndexBase implements IndexBase {
     private static LuceneIndexBase instance;
-    private static String indexFolderName = "data/index/";
     private File indexDir;
     private Analyzer analyzer;
     private IndexWriter writer;
@@ -42,7 +42,7 @@ public class LuceneIndexBase implements IndexBase {
 
     private LuceneIndexBase() throws Exception {
 
-        indexDir = new File(indexFolderName);
+        indexDir = new File(IndexingService.INDEX_PATH);
         analyzer = new StandardAnalyzer(Version.LUCENE_CURRENT);
 
         synchronized (this) {
