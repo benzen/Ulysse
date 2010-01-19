@@ -89,4 +89,10 @@ public interface IndexingService extends FactoryService {
      * @throws IndexingServiceException
      */
     public ArrayList<SearchResult> search(String query) throws IndexingServiceException;
+
+    /**
+     * Clean the index from all indexed resource.
+     * @throws IndexingServiceException
+     */
+    public void reset() throws IndexingServiceException ;
 }

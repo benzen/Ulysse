@@ -185,4 +185,9 @@ public class IndexingServiceBean implements IndexingService {
 		return SERVICE_NAME;
 	}
 
+	@Override
+	public void reset() throws IndexingServiceException {
+		index.reset();
+	}
+
 }
