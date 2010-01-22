@@ -26,9 +26,11 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
+import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageProducer;
+import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.Topic;
 
@@ -38,8 +40,8 @@ import org.jboss.ejb3.annotation.SecurityDomain;
 import org.qualipso.factory.FactoryException;
 import org.qualipso.factory.FactoryNamingConvention;
 import org.qualipso.factory.FactoryResource;
-import org.qualipso.factory.indexing.base.IndexBase;
-import org.qualipso.factory.indexing.base.LuceneIndexBase;
+import org.qualipso.factory.indexing.engine.IndexEngine;
+import org.qualipso.factory.indexing.engine.LuceneIndexEngine;
 
 /**
  * <p>
@@ -59,9 +61,11 @@ public class IndexingServiceBean implements IndexingService {
 	private static Log logger = LogFactory.getLog(IndexingServiceBean.class);
 
 	private SessionContext ctx;
-	private IndexBase index;
+	private IndexEngine index;
 	private ConnectionFactory connectionFactory;
 	private Topic topic;
+	private Queue queue;
+
 
 
 	public IndexingServiceBean() {
@@ -76,11 +80,11 @@ public class IndexingServiceBean implements IndexingService {
 		return this.ctx;
 	}
 
-	public void setIndex(IndexBase index) {
+	public void setIndex(IndexEngine index) {
 		this.index = index;
 	}
 
-	public IndexBase getIndex() {
+	public IndexEngine getIndex() {
 		return this.index;
 	}
 
@@ -102,59 +106,68 @@ public class IndexingServiceBean implements IndexingService {
 		return this.topic;
 	}
 
+	public Queue getQueue() {
+		return queue;
+	}
+
+	@Resource(mappedName = "queue/factoryIndexingPrivate")
+	public void setQueue(Queue queue) {
+		this.queue = queue;
+	}
+
+
+	
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public void index(String path) throws IndexingServiceException {
 		logger.info("index(...) called ");
 		logger.debug("params : Path=\r\n" + path + "\r\n}");
 		String action = "index";
 
-		sendMessage(action, path);
+		sendMessage(action, path, topic, null);
 	}
 
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public void reindex(String path) throws IndexingServiceException {
 		logger.info("reindex(...) called ");
 		logger.debug("params : Path=\r\n" + path + "\r\n}");
 		String action = "reindex";
 
-		sendMessage(action, path);
+		sendMessage(action, path, topic, null);
 
 	}
 
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public void remove(String path) throws IndexingServiceException {
 		logger.info("remove(...) called ");
 		logger.debug("params : Path=\r\n" + path + "\r\n}");
 		String action = "remove";
 
-		sendMessage(action, path);
+		sendMessage(action, path, topic, null);
 
 	}
 
 	@Override
-	@TransactionAttribute(TransactionAttributeType.SUPPORTS)
 	public ArrayList<SearchResult> search(String query) throws IndexingServiceException {
 		logger.info("search(...) called ");
 		logger.debug("params : query=" + query);
-		index = LuceneIndexBase.getInstance();
+		index = LuceneIndexEngine.getInstance();
 		ArrayList<SearchResult> unCheckRes = index.search(query);
 		return unCheckRes;
 	}
 
-	@TransactionAttribute(TransactionAttributeType.SUPPORTS)
-	private void sendMessage(String action, String path) throws IndexingServiceException {
+
+	private void sendMessage(String action, String path, Destination dst, Integer counter) throws IndexingServiceException {
 		logger.info("sendMessage(...) called ");
 		logger.debug("params : action= " + action + " path=" + path);
 		try {
 			Connection connection = connectionFactory.createConnection();
 			Session session = connection.createSession(false, javax.jms.Session.AUTO_ACKNOWLEDGE);
-			MessageProducer producer = session.createProducer(topic);
+			MessageProducer producer = session.createProducer(dst);
 			Message message = session.createMessage();
 			message.setStringProperty("action", action);
 			message.setStringProperty("path", path);
+			if(counter!= null)
+				message.setIntProperty("counter", counter);
 			connection.start();
 			producer.send(message);
 			producer.close();
@@ -189,5 +202,7 @@ public class IndexingServiceBean implements IndexingService {
 	public void reset() throws IndexingServiceException {
 		index.reset();
 	}
+	
+
 
 }

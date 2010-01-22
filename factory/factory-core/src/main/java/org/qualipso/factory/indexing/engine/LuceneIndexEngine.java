@@ -1,4 +1,21 @@
-package org.qualipso.factory.indexing.base;
+/*
+ *
+ * Qualipso Factory
+ * Copyright (C) 2006-2010 INRIA
+ * http://www.inria.fr - molli@loria.fr
+ *
+ * This software is free software; you can redistribute it and/or
+ * modify it under the terms of LGPL. See licenses details in LGPL.txt
+ *
+ * Initial authors :
+ *
+ * Jérôme Blanchard / INRIA
+ * Pascal Molli / Nancy Université
+ * Gérald Oster / Nancy Université
+ * Christophe Bouthier / INRIA
+ * 
+ */
+package org.qualipso.factory.indexing.engine;
 
 /**
  * <p>A class which makes the logic of the indexation and the search.
@@ -27,20 +44,21 @@ import org.apache.lucene.search.highlight.QueryScorer;
 import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.document.Document;
 import org.apache.lucene.util.Version;
 import org.qualipso.factory.indexing.IndexableDocument;
 import org.qualipso.factory.indexing.IndexingService;
 import org.qualipso.factory.indexing.IndexingServiceException;
 import org.qualipso.factory.indexing.SearchResult;
 
-public class LuceneIndexBase implements IndexBase {
-    private static LuceneIndexBase instance;
+public class LuceneIndexEngine implements IndexEngine {
+    private static LuceneIndexEngine instance;
     private File indexDir;
     private Analyzer analyzer;
     private IndexWriter writer;
-    private static Log logger = LogFactory.getLog(LuceneIndexBase.class);
+    private static Log logger = LogFactory.getLog(LuceneIndexEngine.class);
 
-    private LuceneIndexBase() throws Exception {
+    private LuceneIndexEngine() throws Exception {
 
         indexDir = new File(IndexingService.INDEX_PATH);
         analyzer = new StandardAnalyzer(Version.LUCENE_CURRENT);
@@ -54,10 +72,10 @@ public class LuceneIndexBase implements IndexBase {
 
     }
 
-    public static synchronized LuceneIndexBase getInstance() throws IndexingServiceException {
+    public static synchronized LuceneIndexEngine getInstance() throws IndexingServiceException {
         try {
             if (instance == null)
-                instance = new LuceneIndexBase();
+                instance = new LuceneIndexEngine();
             return instance;
         } catch (Exception e) {
             logger.error("can't get instance of index ", e);
@@ -177,5 +195,26 @@ public class LuceneIndexBase implements IndexBase {
         }
                 
     }
+
+	@Override
+	public String[] getNextResources(int crawledResourceByRound) throws IndexingServiceException {
+		int docPosition = 0;
+		ArrayList<String> resourcePath = new ArrayList<String>();
+
+		try{
+			IndexReader reader = IndexReader.open(FSDirectory.open(indexDir), false);
+			int nbDoc = reader.numDocs();
+			
+			for(int i=docPosition;i<=((docPosition+crawledResourceByRound) % nbDoc); i++){
+				Document d = reader.document(i);
+				resourcePath.add(d.getField("path").stringValue());
+			}
+		}catch(Exception e){
+			logger.debug("Unable to obtain resource path from index", e);
+			throw new IndexingServiceException("Unable to obtain resource path from index");
+		}
+
+		return (String[]) resourcePath.toArray();
+	}
 
 }

@@ -18,7 +18,7 @@ import javax.jms.ConnectionFactory;
 import javax.jms.Queue;
 
 import org.qualipso.factory.indexing.IndexingServiceListenerBean;
-import org.qualipso.factory.indexing.IndexingServiceIndexOwner;
+import org.qualipso.factory.indexing.IndexEngineManager;
 import org.qualipso.factory.indexing.IndexingServiceException;
 import org.qualipso.factory.test.mock.MockJMSMessage;
 import org.qualipso.factory.binding.BindingService;
@@ -42,7 +42,7 @@ public class IndexingServicePrivateListenerBeanTest extends BaseSessionBeanFixtu
     private Queue queue;
     private ConnectionFactory connectionFactory;
     private BindingService binding;
-    private IndexingServiceIndexOwner indexOwner;
+    private IndexEngineManager indexOwner;
 
 
    	@BeforeClass
@@ -54,7 +54,7 @@ public class IndexingServicePrivateListenerBeanTest extends BaseSessionBeanFixtu
 		ctx = mockery.mock(MessageDrivenContext.class);
 		queue = mockery.mock(Queue.class);
 		connectionFactory = mockery.mock(ConnectionFactory.class);
-		indexOwner = mockery.mock(IndexingServiceIndexOwner.class);
+		indexOwner = mockery.mock(IndexEngineManager.class);
 		
 		
 		getBeanToTest().setBindingService(binding);
@@ -73,7 +73,7 @@ public class IndexingServicePrivateListenerBeanTest extends BaseSessionBeanFixtu
             mockery.checking(new Expectations() {
             {
                 //what if indexing process fail
-                oneOf(indexOwner).execute(with(equal(new String("index"))),with(equal(new String("/fake/path"))));
+                oneOf(indexOwner).index(with(equal(new String("/fake/path"))));
                 will(throwException(new IndexingServiceException("")));
                 inSequence(sequence1);
                 
@@ -82,7 +82,7 @@ public class IndexingServicePrivateListenerBeanTest extends BaseSessionBeanFixtu
                  inSequence(sequence1);
                  
                  //what if indexing process fail
-                 oneOf(indexOwner).execute(with(equal(new String("index"))),with(equal(new String("/fake/path"))));
+                 oneOf(indexOwner).index(with(equal(new String("/fake/path"))));
                  will(throwException(new IndexingServiceException("")));
                  inSequence(sequence1);
                  
@@ -91,7 +91,7 @@ public class IndexingServicePrivateListenerBeanTest extends BaseSessionBeanFixtu
                   inSequence(sequence1);
                   
                   //what if indexing process fail
-                  oneOf(indexOwner).execute(with(equal(new String("index"))),with(equal(new String("/fake/path"))));
+                  oneOf(indexOwner).index(with(equal(new String("/fake/path"))));
                   will(throwException(new IndexingServiceException("")));
                   inSequence(sequence1);
                   

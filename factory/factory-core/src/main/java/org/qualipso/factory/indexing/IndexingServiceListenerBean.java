@@ -56,7 +56,7 @@ public class IndexingServiceListenerBean implements MessageListener {
     private Queue queue;
     private ConnectionFactory connectionFactory;
     private BindingService binding;
-    private IndexingServiceIndexOwner indexOwner;
+    private IndexEngineManager indexOwner;
 
 
     
@@ -93,12 +93,12 @@ public class IndexingServiceListenerBean implements MessageListener {
 	public BindingService getBindingService(){
 	    return this.binding;
 	}
-	public void setIndexOwner(IndexingServiceIndexOwner indexOwner){
+	public void setIndexOwner(IndexEngineManager indexOwner){
 	    this.indexOwner = indexOwner;
 	}
-	public IndexingServiceIndexOwner getIndexOwner(){
+	public IndexEngineManager getIndexOwner(){
 	    if(this.indexOwner==null){
-	        this.indexOwner = new IndexingServiceIndexOwnerImp(binding);
+	        this.indexOwner = new IndexEngineManagerImp(binding);
 	    }
 	    return this.indexOwner;
 	}
@@ -115,7 +115,14 @@ public class IndexingServiceListenerBean implements MessageListener {
         	String action = msg.getStringProperty("action");
         	String path = msg.getStringProperty("path");
         	try{
-                getIndexOwner().execute(action, path);
+        		if(action.equals("index")){
+        			getIndexOwner().index(path);
+        		}else if(action.equals("reindex")){
+        			getIndexOwner().reindex(path);
+        		}else if(action.equals("remove")){
+        			getIndexOwner().remove(path);
+        		}
+        			
             }catch(IndexingServiceException e){
                 send(action,path);
            	}

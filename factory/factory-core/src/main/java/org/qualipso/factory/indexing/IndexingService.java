@@ -19,6 +19,7 @@ package org.qualipso.factory.indexing;
 
 import java.util.ArrayList;
 
+
 import javax.ejb.Local;
 
 import org.qualipso.factory.FactoryService;
@@ -41,9 +42,14 @@ import org.qualipso.factory.FactoryService;
 @Local
 public interface IndexingService extends FactoryService {
     public static final String SERVICE_NAME = "indexing";
+    public static final String[] RESOURCE_TYPE_LIST = new String[] {};
+    
     public static final String INDEX_PATH = "data/index/";
     public static final int NB_RETRY = 3;
-    public static final String[] RESOURCE_TYPE_LIST = new String[] {};
+	public static final long CRAWL_INDEX_DURATION = 0;
+	public static final long CRAWL_BROWSER_DURATION = 0;
+	public static final long CRAWL_START = 0;
+	public static final int CRAWL_RESOURCE_BY_ROUND = 0;
 
     /**
      * Index the resource identified by the given factoryResourceIdentifier, or

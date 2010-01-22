@@ -22,42 +22,42 @@ import org.apache.commons.logging.LogFactory;
 import org.qualipso.factory.binding.BindingService;
 import org.qualipso.factory.Factory;
 import org.qualipso.factory.FactoryResourceIdentifier;
-import org.qualipso.factory.indexing.base.IndexBaseFactory;
-import org.qualipso.factory.indexing.base.IndexBase;
+import org.qualipso.factory.indexing.engine.IndexEngine;
+import org.qualipso.factory.indexing.engine.IndexEngineFactory;
 
 /**
  * @date 12 jan 2010
  * @author Benjamin Dreux(benjiiiiii@gmail.com)
  */
 
-public class IndexingServiceIndexOwnerImp implements IndexingServiceIndexOwner{
+public class IndexEngineManagerImp implements IndexEngineManager{
 
     private static Log logger = LogFactory.getLog(IndexingServiceListenerBean.class);
     private BindingService binding;
-    private IndexBase index;
+    private IndexEngine index;
     
-    public IndexingServiceIndexOwnerImp(BindingService binding){
+    public IndexEngineManagerImp(BindingService binding){
        setBindingService(binding);
     }
 
     /* (non-Javadoc)
-	 * @see org.qualipso.factory.indexing.IndexingServiceIndexOwner#setBindingService(org.qualipso.factory.binding.BindingService)
+	 * @see org.qualipso.factory.indexing.IndexEngineManager#setBindingService(org.qualipso.factory.binding.BindingService)
 	 */
     public void setBindingService(BindingService binding) {
         this.binding = binding;
     }
 
     /* (non-Javadoc)
-	 * @see org.qualipso.factory.indexing.IndexingServiceIndexOwner#getBindingService()
+	 * @see org.qualipso.factory.indexing.IndexEngineManager#getBindingService()
 	 */
     public BindingService getBindingService() {
         return binding;
     }
     
-    private IndexBase getIndexBase() {
+    private IndexEngine getIndexEngine() {
     	if ( index == null ) {
     		try {
-    			index = IndexBaseFactory.getIndexBase();
+    			index = IndexEngineFactory.getIndexEngine();
     		} catch ( Exception e ) {
     			logger.error("unable to get index base", e);
     		}
@@ -65,38 +65,28 @@ public class IndexingServiceIndexOwnerImp implements IndexingServiceIndexOwner{
     	return index;
     }
     
-    /* (non-Javadoc)
-	 * @see org.qualipso.factory.indexing.IndexingServiceIndexOwner#execute(java.lang.String, java.lang.String)
-	 */
-    public void execute(String action,String path) throws IndexingServiceException{
-        if(action.equals("index"))
-            addToIndexBase(path);
-        if(action.equals("reindex"))
-            updateInIndexBase(path);
-        if(action.equals("remove"))
-            removeFromIndexBase(path);
-    }
 
-    private void addToIndexBase(String path) throws IndexingServiceException {
+
+    public void index(String path) throws IndexingServiceException {
         logger.info("index(...) called");
         logger.debug("params : path=" + path);
-        getIndexBase().index(toIndexableDocument(path));
+        getIndexEngine().index(toIndexableDocument(path));
 
 
     }
 
 
-    private void updateInIndexBase(String path) throws IndexingServiceException {
+    public void reindex(String path) throws IndexingServiceException {
         logger.info("reindex(...) called");
         logger.debug("params : path=" + path);
-        getIndexBase().reindex(path, toIndexableDocument(path));
+        getIndexEngine().reindex(path, toIndexableDocument(path));
  
     }
 
-    private void removeFromIndexBase(String path) throws IndexingServiceException {
+    public void remove(String path) throws IndexingServiceException {
         logger.info("remove(...) called");
         logger.debug("params : path=" + path);
-        getIndexBase().remove(path);
+        getIndexEngine().remove(path);
     }
 
 
@@ -123,4 +113,6 @@ public class IndexingServiceIndexOwnerImp implements IndexingServiceIndexOwner{
 
         
     }
+
+	
 }

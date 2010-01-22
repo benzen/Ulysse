@@ -25,7 +25,7 @@ package org.qualipso.factory.indexing;
  * @date 20 May 2009
  * @see IndexableContentI
  */
-@SuppressWarnings("serial")
+
 
 public class IndexableContent{
 

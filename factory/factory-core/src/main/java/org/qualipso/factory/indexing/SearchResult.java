@@ -25,7 +25,7 @@ import javax.xml.bind.annotation.XmlType;
 
 import org.qualipso.factory.FactoryNamingConvention;
 import org.qualipso.factory.FactoryResourceIdentifier;
-import java.io.Serializable;
+
 
 /**
  * <p>

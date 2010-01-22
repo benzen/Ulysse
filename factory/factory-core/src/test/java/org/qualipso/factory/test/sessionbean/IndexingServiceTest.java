@@ -3,6 +3,7 @@ package org.qualipso.factory.test.sessionbean;
 import java.util.ArrayList;
 
 import javax.ejb.SessionContext;
+import javax.ejb.Timer;
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
 import javax.jms.Topic;
@@ -17,9 +18,10 @@ import org.junit.Test;
 import org.qualipso.factory.indexing.IndexingService;
 import org.qualipso.factory.indexing.IndexingServiceBean;
 import org.qualipso.factory.indexing.SearchResult;
-import org.qualipso.factory.indexing.base.IndexBase;
+import org.qualipso.factory.indexing.engine.IndexEngine;
 
 import com.bm.testsuite.BaseSessionBeanFixture;
+import com.bm.utils.substitues.TimerMock;
 
 public class IndexingServiceTest extends BaseSessionBeanFixture<IndexingServiceBean> {
 
@@ -36,7 +38,7 @@ public class IndexingServiceTest extends BaseSessionBeanFixture<IndexingServiceB
     private SessionContext ctx;
     private Topic topic;
     private ConnectionFactory connectionFactory;
-    private IndexBase index;
+    private IndexEngine index;
 
     @BeforeClass
     public void setUp() throws Exception {
@@ -46,7 +48,7 @@ public class IndexingServiceTest extends BaseSessionBeanFixture<IndexingServiceB
         ctx = mockery.mock(SessionContext.class);
         topic = mockery.mock(Topic.class);
         connectionFactory = mockery.mock(ConnectionFactory.class);
-        index = mockery.mock(IndexBase.class);
+        index = mockery.mock(IndexEngine.class);
 
         getBeanToTest().setSessionContext(ctx);
         getBeanToTest().setTopic(topic);
@@ -108,5 +110,6 @@ public class IndexingServiceTest extends BaseSessionBeanFixture<IndexingServiceB
         }
 
     }
+    
 
 }
